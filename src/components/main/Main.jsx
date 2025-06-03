@@ -7,13 +7,31 @@ import main from "../../config/gemini";
 const Main = () => {
   const onSent = async () => {
     try {
-      await main(input);
+      setResultData("");
+      setLoading(true);
+      setShowResult(true);
+      setRecentPrompt(input);
+      const response = await main(input);
+      setResultData(response);
+      setLoading(false);
+      setInput("");
+      setShowResult(true);
     } catch (err) {
       console.log(err.message);
     }
   };
-  const { recentPromt, showResult, loading, resultData, setInput, input } =
-    useContext(Context);
+  const {
+    recentPrompt,
+    showResult,
+    setRecentPrompt,
+    loading,
+    resultData,
+    setInput,
+    input,
+    setResultData,
+    setLoading,
+    setShowResult,
+  } = useContext(Context);
   return (
     <div className="main">
       <div className="nav">
@@ -21,30 +39,48 @@ const Main = () => {
         <img src={assets.user_icon} alt="" />
       </div>
       <div className="main-container">
-        <div className="greet">
-          <p>
-            <span>Hello, Deepesh</span>
-          </p>
-          <p>How can I help you today</p>
-        </div>
-        <div className="cards">
-          <div className="card">
-            <p>Suggest beautiful place to see on an upcoming road trip</p>
-            <img src={assets.compass_icon} alt="" />
+        {!showResult ? (
+          <>
+            <div className="greet">
+              <p>
+                <span>Hello, Deepesh</span>
+              </p>
+              <p>How can I help you today</p>
+            </div>
+            <div className="cards">
+              <div className="card">
+                <p>Suggest beautiful place to see on an upcoming road trip</p>
+                <img src={assets.compass_icon} alt="" />
+              </div>
+              <div className="card">
+                <p>
+                  Lorem ipsum dolor, sit amet consectetur adipisicing eselfj
+                </p>
+                <img src={assets.bulb_icon} alt="" />
+              </div>
+              <div className="card">
+                <p>Lorem, ipsum. Lorem ipsum dolor sit amet consectetur.</p>
+                <img src={assets.message_icon} alt="" />
+              </div>
+              <div className="card">
+                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
+                <img src={assets.code_icon} alt="" />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="result">
+            <div className="result-title">
+              <img src={assets.user_icon} alt="" />
+              <p>{recentPrompt}</p>
+            </div>
+            <div className="result-data">
+              <img src={assets.gemini_icon} alt="" />
+              <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
+            </div>
           </div>
-          <div className="card">
-            <p>Lorem ipsum dolor, sit amet consectetur adipisicing eselfj</p>
-            <img src={assets.bulb_icon} alt="" />
-          </div>
-          <div className="card">
-            <p>Lorem, ipsum. Lorem ipsum dolor sit amet consectetur.</p>
-            <img src={assets.message_icon} alt="" />
-          </div>
-          <div className="card">
-            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
-            <img src={assets.code_icon} alt="" />
-          </div>
-        </div>
+        )}
+
         <div className="main-bottom">
           <div className="search-box">
             <input
