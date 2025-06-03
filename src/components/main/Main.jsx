@@ -1,29 +1,59 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
 import "./main.css";
 import { assets } from "../../assets/assets";
 import { Context } from "../../context/Context";
 import main from "../../config/gemini";
 
 const Main = () => {
+  const inputRef = useRef();
+
+  const delayPara = (index, nextWord) => {
+    setTimeout(() => {
+      setResultData((prev) => prev + nextWord);
+    }, 75 * index);
+  };
+
   const onSent = async () => {
     try {
       setResultData("");
       setLoading(true);
       setShowResult(true);
       setRecentPrompt(input);
+
       const response = await main(input);
-      setResultData(response);
+      let responseArray = response.split("**");
+      let newResponse;
+      for (let i = 0; i < responseArray.length; i++) {
+        if (i === 0 || i % 2 !== 1) {
+          newResponse += responseArray[i];
+        } else {
+          newResponse += "<b>" + responseArray[i] + "</b>";
+        }
+      }
+      let newResponse2 = newResponse.split("*").join("<br>");
+      let newResponseArray = newResponse2.split(" ");
+      for (let i = 0; i < newResponseArray.length; i++) {
+        const nextWord = newResponseArray[i];
+        delayPara(i, nextWord + " ");
+      }
       setLoading(false);
       setInput("");
+      inputRef.current.focus();
       setShowResult(true);
     } catch (err) {
       console.log(err.message);
+    }
+  };
+  const handleEnter = (e) => {
+    if (e.key === "Enter") {
+      onSent();
     }
   };
   const {
     recentPrompt,
     showResult,
     setRecentPrompt,
+
     loading,
     resultData,
     setInput,
@@ -76,7 +106,15 @@ const Main = () => {
             </div>
             <div className="result-data">
               <img src={assets.gemini_icon} alt="" />
-              <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
+              {loading ? (
+                <div className="loader">
+                  <hr />
+                  <hr />
+                  <hr />
+                </div>
+              ) : (
+                <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
+              )}
             </div>
           </div>
         )}
@@ -88,6 +126,9 @@ const Main = () => {
               placeholder="Enter a prompt here"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              autoFocus
+              ref={inputRef}
+              onKeyDown={handleEnter}
             />
             <div>
               <img src={assets.gallery_icon} alt="" />
